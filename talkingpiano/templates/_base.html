@@ -1,0 +1,61 @@
+<!--  
+  templates/_base.html
+  Used for providing a base template for every page
+-->
+{% load static %}
+<!Doctype html>
+
+<html>
+
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- title block gets filled out in inherited pages-->
+    <title> Django Ajax - {% block title %} {% endblock title %}</title>
+    <!-- pull stylesheet from bootstrap -->
+    <link rel="stylesheet" href="{% static 'assets/css/bootstrap.css' %}" />
+  </head>
+
+  <body>
+    <!--url cache-->
+    {% url 'audio_ui:record' as record_url %}
+    <!--url cache-->
+    {% url 'audio-ui:index' as home_url %}
+    <section class="hero is-info is-small">
+      <!-- Hero head: will stick at the top -->
+      <div class="hero-head">
+        <nav class="navbar navbar-dark bg-dark">
+          <div class="container">
+            <!-- To partition the buttons on one side of the window-->
+              <div>
+                <a class="btn btn-secondary" href="{% url 'audio_ui:index' %}">
+                  Home
+                </a>
+                <a class="btn btn-secondary" href="{% url 'audio_ui:record' %}"> Record </a>
+              </div>
+            </div>
+          </div>
+        </nav>
+      </div>
+    </section>
+    {% block content %} {% endblock content %}
+    <script src="{% static 'assets/js/jquery.js' %}"></script>
+    <script>
+      const csrftoken = $("[name=csrfmiddlewaretoken]").val();
+      if (csrftoken) {
+        function csrfSafeMethod(method) {
+          // these HTTP methods do not require CSRF protection
+          return /^(GET|HEAD|OPTIONS|TRACE)$/.test(method);
+        }
+        $.ajaxSetup({
+          beforeSend: function (xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+              xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+          },
+        });
+      }
+    </script>
+  </body>
+
+</html>

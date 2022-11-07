@@ -1,0 +1,22 @@
+<!--
+  templates/audio_ui/record_detail.html
+ 
+-->
+<!-- inherit _base.html -->
+{% extends '_base.html' %}
+
+<!-- page_title comes from passed in context from views.py -->
+{% block title %} {{page_title}} {% endblock title %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <h1 class="text-center"> Details of your recording</h1>
+    <p class="text-center">On this page, you can see previous recordings and 
+      play them back!
+  </div>
+
+</section>
+
+
+{% endblock content %}

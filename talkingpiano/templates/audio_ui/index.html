@@ -1,0 +1,53 @@
+<!--
+  templates/audio_ui/index.html
+  Used as the initial index page when first logging into the web app
+  - This will include recording audio or choosing a previously 
+    recorded/processed audio file
+-->
+<!-- inherit _base.html -->
+{% extends '_base.html' %}
+
+<!-- page_title comes from passed in context from views.py -->
+{% block title %} {{page_title}} {% endblock title %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <h1 class="text-center"> Welcome to the Talking Piano Web App!</h1>
+    <p class="text-center">On this page, you can record your speech or 
+      select from previously recorded and processed audio files.
+    </p>
+    {% for record in records %}
+    <div>
+      <audio src="{{record.voice.url}}" controls></audio>
+      <button class="btn btn-danger" value="{{record.id}}"
+      onclick="deleteModel(this.value)">Delete</button>
+    </div>
+    {% endfor %}
+  </div>
+
+</section>
+
+<script>
+  window.CSRF_TOKEN = "{{ csrf_token }}";
+
+  function deleteModel(id){
+    let data = new FormData();
+    data.append("id", id);
+    data.append("csrfmiddlewaretoken", '{{ csrf_token }}');
+
+    $.ajax({
+      url: "",
+        method: "POST",
+        data: data,
+        dataType: "json",          
+        cache: false,
+        processData: false,
+        contentType: false,
+    }).then(() => {
+      location.reload();
+    });
+  }
+</script>
+
+{% endblock content %}

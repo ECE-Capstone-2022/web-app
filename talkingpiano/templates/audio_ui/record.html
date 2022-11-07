@@ -1,0 +1,138 @@
+<!--
+  templates/audio_ui/record.html
+ 
+-->
+<!-- inherit _base.html -->
+{% extends '_base.html' %}
+
+<!-- page_title comes from passed in context from views.py -->
+{% block title %} {{page_title}} {% endblock title %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <h1 class="text-center"> Record your voice!</h1>
+    <p class="text-center">On this page, you can record your voice and choose
+      to upload it for processing and hearing it on the piano
+  </div>
+
+</section>
+<section>
+  <!--Input previously recorded file-->
+  <div class="container">
+    <h3>Upload a previously recorded .wav file</h3>
+    <input class="form-control" type="file" accept=".wav" capture/>
+    <h3 class="text-center"> or</h3>
+  </div>
+
+  <!--Record user voice-->
+  <div class="container">
+    <h3>Record your own voice right now</h3>
+    <div>
+      <button id="record-btn" type="button" class="btn btn-danger btn-lg">
+        Record
+      </button>
+      <button id="stop-btn" type="button" class="btn btn-dark btn-lg" disabled>
+        Stop Recording
+      </button>
+    </div>
+    <audio class="form-control" id="player" controls style="margin-top: 5px"></audio>
+    <div style="margin-top: 5px">
+      <a id="download-btn" class="btn btn-dark" role="button">Download Audio</a>
+      <a id="upload-btn" class="btn btn-dark" role="button">
+        Upload Audio to the Piano!
+      </a>
+    </div>
+  </div>
+</section>
+
+<!--Handles asking for microphone permission and beginning the recording-->
+<script>
+  window.CSRF_TOKEN = "{{ csrf_token }}";
+  const player = document.getElementById('player');
+  const recordButton = document.getElementById('record-btn');
+  const stopButton = document.getElementById('stop-btn');
+  const downloadButton = document.getElementById('download-btn');
+  const uploadButton = document.getElementById('upload-btn');
+
+  //keep buttons hidden that relate to finished recorded audio
+  downloadButton.style.visibility = "hidden";
+  uploadButton.style.visibility = "hidden";
+
+  recordButton.addEventListener('click', function(){
+    stopButton.disabled = false;
+    navigator.mediaDevices.getUserMedia({audio: true, video:false})
+    .then(handleSuccess);
+    recordButton.disabled = true;
+  });
+
+  const handleSuccess = function(audioStream) {
+    const options = {mimeType: 'audio/webm'};
+    const recordedChunks = [];
+    const audioRecorder = new MediaRecorder(audioStream, options);
+
+    audioRecorder.addEventListener('dataavailable', function(audioData){
+      if(audioData.data.size > 0) {
+        recordedChunks.push(audioData.data);
+      }
+    });
+    
+    audioRecorder.addEventListener('stop', function() {
+      const audioURL = URL.createObjectURL(new Blob(recordedChunks));
+      downloadButton.href = audioURL;
+      downloadButton.download = 'test.wav';
+      downloadButton.style.visibility = "visible"
+      player.src = audioURL;
+      uploadButton.style.visibility = "visible"     
+    });
+
+    stopButton.addEventListener('click', function(){
+      audioRecorder.stop();
+      stopButton.disabled = true;
+      recordButton.innerHTML = "New Recording";
+      recordButton.disabled = false;
+    });
+
+    uploadButton.addEventListener('click', function(){
+      uploadButton.innerHTML = "Submitting...";
+      const recordFile = new File(recordedChunks, 
+        'audiorecording.wav', {type: 'audio/wave'});
+      let data = new FormData();
+      data.append("audio_record", recordFile);
+      data.append("csrfmiddlewaretoken", '{{ csrf_token }}');
+
+      
+      $.ajax({
+        url: "",
+        method: "POST",
+        data: data,
+        dataType: "json",
+        success: function (response) {
+          if(response.success){
+            uploadButton.innerHTML = "Upload Success";
+          }
+          else{
+            uploadButton.innerHTML = "Unsuccessful Upload";
+          }
+        },
+        error: function(response) {
+          uploadButton.innerHTML = "Error Uploading!";
+        },
+        cache: false,
+        processData: false,
+        contentType: false,
+      }).then(()=>{
+        location.reload();
+      });
+
+      
+      
+
+    });
+
+    audioRecorder.start();
+  };
+
+</script>
+
+{% endblock content %}
