@@ -2,8 +2,15 @@
   templates/audio_ui/record.html
  
 -->
+
+
+
+
+
 <!-- inherit _base.html -->
 {% extends '_base.html' %}
+
+{% load static %}
 
 <!-- page_title comes from passed in context from views.py -->
 {% block title %} {{page_title}} {% endblock title %}
@@ -46,6 +53,11 @@
   </div>
 </section>
 
+
+<!-- Import Recorder.js-->
+<script src="https://cdn.rawgit.com/mattdiamond/Recorderjs/08e7abd9/dist/recorder.js"></script>
+
+
 <!--Handles asking for microphone permission and beginning the recording-->
 <script>
   window.CSRF_TOKEN = "{{ csrf_token }}";
@@ -54,14 +66,24 @@
   const stopButton = document.getElementById('stop-btn');
   const downloadButton = document.getElementById('download-btn');
   const uploadButton = document.getElementById('upload-btn');
+  var audioFile;
+  var data = new FormData();
+  var gumStream;
 
   //keep buttons hidden that relate to finished recorded audio
   downloadButton.style.visibility = "hidden";
   uploadButton.style.visibility = "hidden";
 
+  var AudioContext = window.AudioContext || window.webkitAudioContext; 
+  var audio_context = new AudioContext;
+  var recorder;
+
   recordButton.addEventListener('click', function(){
     stopButton.disabled = false;
-    navigator.mediaDevices.getUserMedia({audio: true, video:false})
+    navigator.mediaDevices.getUserMedia(
+      {audio: {sampleSize: 16, sampleRate:48000, channelCount: 1},
+       vido:false}
+    )
     .then(handleSuccess);
     recordButton.disabled = true;
   });
@@ -69,39 +91,38 @@
   const handleSuccess = function(audioStream) {
     const options = {mimeType: 'audio/webm'};
     const recordedChunks = [];
-    const audioRecorder = new MediaRecorder(audioStream, options);
+    gumStream = audioStream;
+    var input = audio_context.createMediaStreamSource(audioStream);
+    recorder = new Recorder(input, {
+      numChannels: 1
+    });
 
-    audioRecorder.addEventListener('dataavailable', function(audioData){
-      if(audioData.data.size > 0) {
-        recordedChunks.push(audioData.data);
-      }
-    });
-    
-    audioRecorder.addEventListener('stop', function() {
-      const audioURL = URL.createObjectURL(new Blob(recordedChunks));
-      downloadButton.href = audioURL;
-      downloadButton.download = 'test.wav';
-      downloadButton.style.visibility = "visible"
-      player.src = audioURL;
-      uploadButton.style.visibility = "visible"     
-    });
+    function createDownloadWav() {
+      recorder && recorder.exportWAV(function(blob){
+        data.append("audio_record", blob, new Date().toISOString() + ".wav");
+        data.append("csrfmiddlewaretoken", '{{ csrf_token }}');
+
+        const audioURL = URL.createObjectURL(blob);
+        downloadButton.href = audioURL;
+        downloadButton.download = new Date().toISOString() + '.wav';
+        downloadButton.style.visibility = "visible"
+        player.src = audioURL;
+        uploadButton.style.visibility = "visible"     
+      });
+    }
 
     stopButton.addEventListener('click', function(){
-      audioRecorder.stop();
+      recorder && recorder.stop(); //using recorder.js
+      gumStream.getAudioTracks()[0].stop();
       stopButton.disabled = true;
       recordButton.innerHTML = "New Recording";
       recordButton.disabled = false;
+      createDownloadWav();
     });
 
     uploadButton.addEventListener('click', function(){
       uploadButton.innerHTML = "Submitting...";
-      const recordFile = new File(recordedChunks, 
-        'audiorecording.wav', {type: 'audio/wave'});
-      let data = new FormData();
-      data.append("audio_record", recordFile);
-      data.append("csrfmiddlewaretoken", '{{ csrf_token }}');
-
-      
+    
       $.ajax({
         url: "",
         method: "POST",
@@ -130,9 +151,10 @@
 
     });
 
-    audioRecorder.start();
+    recorder && recorder.record(); //using recorder.js
   };
 
 </script>
+
 
 {% endblock content %}
