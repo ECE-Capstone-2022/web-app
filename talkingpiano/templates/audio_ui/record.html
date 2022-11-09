@@ -77,6 +77,7 @@
   var AudioContext = window.AudioContext || window.webkitAudioContext; 
   var audio_context = new AudioContext;
   var recorder;
+  var currDateTime;
 
   recordButton.addEventListener('click', function(){
     stopButton.disabled = false;
@@ -99,12 +100,14 @@
 
     function createDownloadWav() {
       recorder && recorder.exportWAV(function(blob){
-        data.append("audio_record", blob, new Date().toISOString() + ".wav");
+        currDateTime = new Date().getTime();
+        data.append("audio_record", blob, currDateTime + ".wav");
         data.append("csrfmiddlewaretoken", '{{ csrf_token }}');
+        data.append("fileName", currDateTime);
 
         const audioURL = URL.createObjectURL(blob);
         downloadButton.href = audioURL;
-        downloadButton.download = new Date().toISOString() + '.wav';
+        downloadButton.download = currDateTime + '.wav';
         downloadButton.style.visibility = "visible"
         player.src = audioURL;
         uploadButton.style.visibility = "visible"     
@@ -143,12 +146,10 @@
         processData: false,
         contentType: false,
       }).then(()=>{
-        location.reload();
+        location.assign("http://127.0.0.1:8000/record_detail/" + currDateTime);
       });
-
       
       
-
     });
 
     recorder && recorder.record(); //using recorder.js

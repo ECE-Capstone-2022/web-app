@@ -19,9 +19,14 @@
     </p>
     {% for record in records %}
     <div>
+      <p>{{record.name}}</p>
       <audio src="{{record.voice.url}}" controls></audio>
       <button class="btn btn-danger" value="{{record.id}}"
       onclick="deleteModel(this.value)">Delete</button>
+      <a class="btn btn-dark" role="button" 
+      href="http://127.0.0.1:8000/record_detail/{{record.name}}">
+        See audio processing data from audio
+      </a>
     </div>
     {% endfor %}
   </div>

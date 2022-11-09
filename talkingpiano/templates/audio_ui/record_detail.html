@@ -1,9 +1,12 @@
 <!--
-  templates/audio_ui/record_detail.html
- 
+  templates/audio_ui/index.html
+  Used as the initial index page when first logging into the web app
+  - This will include recording audio or choosing a previously 
+    recorded/processed audio file
 -->
 <!-- inherit _base.html -->
 {% extends '_base.html' %}
+
 
 <!-- page_title comes from passed in context from views.py -->
 {% block title %} {{page_title}} {% endblock title %}
@@ -11,12 +14,54 @@
 {% block content %}
 <section class="section">
   <div class="container">
-    <h1 class="text-center"> Details of your recording</h1>
-    <p class="text-center">On this page, you can see previous recordings and 
-      play them back!
+    <h1 class="text-center"> Details for Your Recording!</h1>
+    <p class="text-center">On this page, you can see the outputs of our audio
+      processing functions on our input audio. Currently processing: 
+      {{record.name}}.wav
+    </p>
+    <div>
+      <p>Playback your original audio:</p>
+      <audio src="{{record.voice.url}}" controls></audio>
+    </div>
+    <div>
+      <p>Here is the Time vs Amplitude graph from the original audio:</p>
+      <img src="/media/graphs/o_time.png">
+      <p>Here is the Frequency vs Amplitude graph from the original audio
+        after it was run through a Fourier Transform:</p>
+      <img src="/media/graphs/o_freq.png">
+      <p>Here is a spectrogram, showing the intensity of certain frequencies
+        with respect to time from the original audio</p>
+      <img src="/media/graphs/o_spectro.png">
+      <p>Lastly, we have applied a filter on the original audio such that 
+        only frequencies reproducable by piano keys remain. We layered this
+        piano-key audio on top of the original audio to show the difference:
+      </p>
+      <img src="/media/graphs/fin_freqLayer.png">
+    </div>
   </div>
 
 </section>
 
+<script>
+  window.CSRF_TOKEN = "{{ csrf_token }}";
+
+  function deleteModel(id){
+    let data = new FormData();
+    data.append("id", id);
+    data.append("csrfmiddlewaretoken", '{{ csrf_token }}');
+
+    $.ajax({
+      url: "",
+        method: "GET",
+        data: data,
+        dataType: "json",          
+        cache: false,
+        processData: false,
+        contentType: false,
+    }).then(() => {
+      location.reload();
+    });
+  }
+</script>
 
 {% endblock content %}

@@ -10,6 +10,7 @@ from django.urls.base import reverse
 class Record(models.Model):
   id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   voice = models.FileField(upload_to="records")
+  name = models.CharField(max_length=50, default="")
 
   class Meta:
     verbose_name = "Record"
