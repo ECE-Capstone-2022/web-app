@@ -8,6 +8,10 @@
 {% extends '_base.html' %}
 
 
+{% load static %}
+
+
+
 <!-- page_title comes from passed in context from views.py -->
 {% block title %} {{page_title}} {% endblock title %}
 
@@ -39,29 +43,21 @@
       <img src="/media/graphs/fin_freqLayer.png">
     </div>
   </div>
+  <div>
+    <p>Here is our Piano visualized!</p>
+    <div id="pianolizer">
+      <!--
+      <canvas id="spectrogram"></canvas>
+      -->
+      <br>
+      <svg id="keyboard"></svg>
+    </div>
+    <button style="text-align: center" id="visualButton" class="btn btn-danger">Visualize</button>
+  </div>
 
 </section>
 
-<script>
-  window.CSRF_TOKEN = "{{ csrf_token }}";
 
-  function deleteModel(id){
-    let data = new FormData();
-    data.append("id", id);
-    data.append("csrfmiddlewaretoken", '{{ csrf_token }}');
-
-    $.ajax({
-      url: "",
-        method: "GET",
-        data: data,
-        dataType: "json",          
-        cache: false,
-        processData: false,
-        contentType: false,
-    }).then(() => {
-      location.reload();
-    });
-  }
-</script>
+<script src="{% static 'assets/js/visualizer.js' %}"></script>
 
 {% endblock content %}

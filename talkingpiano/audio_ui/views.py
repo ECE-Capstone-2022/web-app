@@ -30,7 +30,7 @@ def record(request):
 
 def record_detail(request, fileName):
   record = get_object_or_404(Record, name=fileName)
-  audioProcessing.mainFunc(fileName + '.wav')
+  #audioProcessing.mainFunc(fileName + '.wav')
   context = {
     "page_title": "Details",
     "record": record,

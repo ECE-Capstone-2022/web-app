@@ -14,9 +14,10 @@
     <title> Django Ajax - {% block title %} {% endblock title %}</title>
     <!-- pull stylesheet from bootstrap -->
     <link rel="stylesheet" href="{% static 'assets/css/bootstrap.css' %}" />
+    <link rel="stylesheet" href="{% static 'assets/css/visualizer.css' %}"
   </head>
 
-  <body>
+  <body style="background-color:grey">
     <!--url cache-->
     {% url 'audio_ui:record' as record_url %}
     <!--url cache-->
