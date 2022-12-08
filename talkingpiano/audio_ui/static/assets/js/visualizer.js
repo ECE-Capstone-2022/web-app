@@ -5,6 +5,9 @@
 
 */
 
+//Audio Elements
+var noteAudio = [];
+
 
 /**
  * Color management helper class.
@@ -297,5 +300,44 @@ function pianoVisualize() {
   document.getElementById("pianolizer").innerHTML += "<p>Hello</p>";
 }
 
+
+
+
+function loadNotes(){
+  for(let i = 0; i < 88; i++){
+    let currAudio = new Audio('/media/audio/mp3Notes/' + (i+1).toString() + '.mp3');
+    //currAudio.src = '/media/audio/mp3Notes/' + (i+1).toString() + '.mp3';
+    currAudio.load();
+    noteAudio[i] = currAudio;
+  }
+}
+
+function playNote(i) {
+  let note = noteAudio[i];
+  if(note.paused){
+    note.play();
+  }
+  else{
+    note.currentTime = 0;
+  }
+}
+
+function playArray(){
+  let arr = document.getElementById("noteArray").value;
+  console.log(arr);
+  /*
+  for(let i = 0; i < arr.length; i++){
+    for(let note = 0; note < arr[i].length; note++){
+      if(arr[i][note] == 1){
+        playNote(note);
+      }
+    }
+  }
+  */
+}
+
 //pianoVisualize();
+window.onload = loadNotes();
 document.getElementById("visualButton").addEventListener("click", pianoVisualize);
+//document.getElementById("play25").addEventListener("click", playNote(25));
+//document.getElementById("play32").addEventListener("click", playNote(30));

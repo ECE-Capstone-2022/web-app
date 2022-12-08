@@ -53,11 +53,29 @@
       <svg id="keyboard"></svg>
     </div>
     <button style="text-align: center" id="visualButton" class="btn btn-danger">Visualize</button>
+    <button style="text-align: center" id="playTest" class="btn btn-danger">PlayTest</button>
+
+    <button style="text-align: center" id="play25" class="btn btn-danger"
+      onclick="playNote(24)">Note 25</button>
+
+    <button style="text-align: center" id="play32" class="btn btn-danger"
+      onclick="playNote(31)">Note 32</button>
+
+    <input type="hidden" value={{noteArray}} id="noteArray">
+    <button style="text-align: center" id="playArray" class="btn btn-danger"
+      onclick="playArray()">Play Arrays!</button>
+
+    
+
+    
   </div>
 
 </section>
 
 
-<script src="{% static 'assets/js/visualizer.js' %}"></script>
+<script src="{% static 'assets/js/visualizer.js' %}">
+  //let noteArray = "{{noteArray|escapejs}}"
+
+</script>
 
 {% endblock content %}
