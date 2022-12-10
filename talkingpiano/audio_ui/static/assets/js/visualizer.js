@@ -321,23 +321,56 @@ function playNote(i) {
     note.currentTime = 0;
   }
 }
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== "") {
+    const cookies = document.cookie.split(";");
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      // Does this cookie string begin with the name we want?
+      if (cookie.substring(0, name.length + 1) === (name + "=")) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
 
-function playArray(){
-  let arr = document.getElementById("noteArray").value;
-  console.log(arr);
-  /*
+function getArray(){
+  let arr;
+  $.ajax({
+    url: "",
+    type: "POST",
+    dataType: "json",
+    headers: {
+      "X-Requested-With": "XMLHttpRequest",
+      "X-CSRFToken": getCookie("csrftoken"),  // don't forget to include the 'getCookie' function
+    },
+    success: (data) => {
+      console.log(data.data);
+      playArray(data.data);
+    },
+    error: (error) => {
+      console.log(error);
+      console.log("ERROR")
+    }
+  });
+   
+}
+
+function playArray(arr){
   for(let i = 0; i < arr.length; i++){
     for(let note = 0; note < arr[i].length; note++){
-      if(arr[i][note] == 1){
+      //console.log(arr[i][note])
+      if(arr[i][note] != 0){
+        console.log(note)
         playNote(note);
       }
     }
   }
-  */
 }
 
-//pianoVisualize();
 window.onload = loadNotes();
 document.getElementById("visualButton").addEventListener("click", pianoVisualize);
-//document.getElementById("play25").addEventListener("click", playNote(25));
-//document.getElementById("play32").addEventListener("click", playNote(30));
+

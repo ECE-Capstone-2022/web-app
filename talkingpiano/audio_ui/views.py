@@ -85,14 +85,27 @@ def record_detail(request, fileName):
 
 
   #noteArray = [testArray1, testArray2, testArray3, testArray4, testArray5]
-  noteArray = [[0],[1],[2],[3],[4],[5]]
+  #noteArray = [[0],[1],[2],[3],[74],[5]]
+  noteArray = [
+    testArray1,
+    testArray2,
+    testArray3,
+    testArray4,
+    testArray5
+  ]
   
   context = {
     "page_title": "Details",
     "record": record,
     "param" : fileName,
-    "noteArray": str(noteArray).replace(" ", ""),
   }
+
+  if(request.method == "POST"):
+    return JsonResponse(
+      {
+        "data":noteArray
+      }
+    )
 
   return render(request, "audio_ui/record_detail.html", context)
 
