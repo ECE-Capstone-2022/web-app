@@ -1,13 +1,36 @@
 /*
-  visualizer.js is taken from the Pianolizer piano visualization application
-  created by Stanislaw Pusep. Github repo linked here: 
+  visualizer.js has parts from the Pianolizer piano visualization
+  application created by Stanislaw Pusep. Github repo linked here: 
   https://github.com/creaktive/pianolizer
+
+  Parts from Pianolizer:
+  Palette Class (and methods)
+  Piano Keyboard Class (and methods)
+  Spectrogram Class (and methods)
+  'pianoVisualize' Function
 
 */
 
-//Audio Elements
+//List holding loaded audio elements for each piano note
 var noteAudio = [];
+var noteColors = [];
 
+//Attempt to fade note colors
+/*
+//Returns hex value of red with intensity (0-1) --> 0 is full red and 1 is white
+function redToWhite(i){
+  let ratio = Math.round(i*255);
+  let hex = ratio.toString(16);
+  return "#" + "FF" + hex + hex;
+}
+
+//Returns hex value of red with intensity (0-1) --> 0 is full red and 1 is black
+function redToBlack(i){
+  let ratio = Math.round((i-1)*255);
+  let hex = ratio.toString(16);
+  return "#" + hex + "0000";
+}
+*/
 
 /**
  * Color management helper class.
@@ -84,23 +107,32 @@ class PianoKeyboard {
     this.ns = 'http://www.w3.org/2000/svg'
     this.keySlices = null
 
-    this.keysNum = 70
+    this.keysNum = 69
     this.keys = new Array(this.keysNum)
     this.labels = new Array(this.keysNum)
-    this.blackOffset = 0
+    this.blackOffset = 10
     this.whiteOffset = 0
-    this.whiteIndex = 0 // C2
-    this.startFrom = 0
+    this.whiteIndex = 2 // C2
+    this.startFrom = 4
     this.startOctave = 2
   }
 
-  drawKey (index, offset, width, height, group) {
+  drawKey (index, offset, width, height, group, color) {
     const keyElement = document.createElementNS(this.ns, 'rect')
     keyElement.setAttribute('x', offset)
     keyElement.setAttribute('y', 0)
     keyElement.setAttribute('rx', this.roundCorners)
     keyElement.setAttribute('width', width - 1)
     keyElement.setAttribute('height', height)
+    keyElement.setAttribute('id', index)
+    if(color == 'white'){
+      keyElement.setAttribute('style', "fill: white")
+      noteColors[index] = 'white'
+    }
+    else{
+      keyElement.setAttribute('style', "fill: black")
+      noteColors[index] = 'black'
+    }
     keyElement.classList.add('piano-key')
     this.keys[index] = keyElement
     group.appendChild(keyElement)
@@ -135,12 +167,12 @@ class PianoKeyboard {
       keySlices.push(blackWidth)
       blackSum += blackWidth
       if (this.blackTone[blackIndex]) {
-        this.drawKey(index, blackOffset, blackWidth, this.blackHeight, blackKeyGroup)
+        this.drawKey(index, blackOffset, blackWidth, this.blackHeight, blackKeyGroup, 'black')
       } else {
         // white
         const note = whiteIndex % this.whiteKeys.length
         const whiteWidth = this.whiteKeys[note]
-        this.drawKey(index, whiteOffset, whiteWidth, this.whiteHeight, whiteKeyGroup)
+        this.drawKey(index, whiteOffset, whiteWidth, this.whiteHeight, whiteKeyGroup, 'white')
 
         const octave = 0 | whiteIndex / this.whiteKeys.length + this.startOctave
         this.drawLabel(index, whiteOffset, note, octave, whiteKeyGroup)
@@ -164,7 +196,6 @@ class PianoKeyboard {
   }
 
   bgrIntegerToHex (bgrInteger, start = 0) {
-    // #kill me
     const range = (0xff - start) / 0xff
     const rgbArray = [
       (bgrInteger & 0x0000ff),
@@ -174,7 +205,47 @@ class PianoKeyboard {
     return '#' + rgbArray.map(c => c.toString(16).padStart(2, '0')).join('')
   }
 
-  update (audioColors, midiColors) {
+  //update (audioColors, midiColors) {
+    update () {
+
+      for (let key = 0; key < 68; key++){
+        let keyElem = document.getElementById(key)
+        let note = noteAudio[key]
+        //let intensity; //for fading
+
+        if(note.paused){
+          if(noteColors[key] == 'white'){
+            keyElem.style.fill = '#FFFFFF'
+          }
+          else{
+            keyElem.style.fill = '#000000'
+          }
+        }
+        else{
+          if(note.currentTime < (note.duration/3)){
+            keyElem.style.fill = '#FF0000'
+          }
+          //for fading
+          /*
+          intensity = (note.currentTime) / note.duration
+          if(intensity > 1){intensity = 1}
+
+          let colorString;
+          if(noteColors[key] == 'white'){
+            colorString = redToWhite(intensity);
+          }
+          else{
+            colorString = redToBlack(intensity);
+          }
+          keyElem.style.fill = colorString
+          */
+        }
+        
+      }
+      
+    
+    
+    /*
     for (let key = 0; key < this.keysNum; key++) {
       this.keys[key].style.fill = this.bgrIntegerToHex(audioColors[key])
 
@@ -184,6 +255,7 @@ class PianoKeyboard {
         this.labels[key].style.fill = midiColor
       }
     }
+    */
   }
 }
 
@@ -277,12 +349,14 @@ function pianoVisualize() {
   let midi = new Float32Array(70);
 
   function draw(timeStamp) {
-    const audioColors = palette.getKeyColors(levels);
-    const midiColors = palette.getKeyColors(midi);
-    console.log(audioColors);
-    console.log(midiColors);
-    pianoKeyboard.update(audioColors, midiColors);
-    spectrogram.update(audioColors,midiColors);
+    //const audioColors = palette.getKeyColors(levels);
+    //const midiColors = palette.getKeyColors(midi);
+    //console.log(audioColors);
+    //console.log(midiColors);
+    while(noteAudio.length == 0){} //loop until noteAudio has things in it
+    pianoKeyboard.update();
+    //pianoKeyboard.update(audioColors, midiColors);
+    //spectrogram.update(audioColors,midiColors);
     window.requestAnimationFrame(draw);
   }
 
@@ -290,11 +364,11 @@ function pianoVisualize() {
     document.getElementById('keyboard'));
   
   pianoKeyboard.drawKeyboard();
-  const spectrogram = new Spectrogram(
-    document.getElementById("spectrogram"),
-    pianoKeyboard.keySlices,
-    600 //as a baseline height parameter
-  );
+  //const spectrogram = new Spectrogram(
+  //  document.getElementById("spectrogram"),
+  //  pianoKeyboard.keySlices,
+  //  600 //as a baseline height parameter
+  //);
   window.requestAnimationFrame(draw);
 
   document.getElementById("pianolizer").innerHTML += "<p>Hello</p>";
@@ -312,15 +386,23 @@ function loadNotes(){
   }
 }
 
-function playNote(i) {
+function playNote(i, vol) {
   let note = noteAudio[i];
+  note.volume = vol;
   if(note.paused){
+    let key = document.getElementById(i);
+    key.setAttribute('style', "fill: red")
     note.play();
+    //key.setAttribute('style', "fill: white")
   }
   else{
     note.currentTime = 0;
   }
 }
+
+//'getCookie' function taken from Django AJAX blog on testdriven.io
+//link: https://testdriven.io/blog/django-ajax-xhr/
+//Author: Yacine Rouizi
 function getCookie(name) {
   let cookieValue = null;
   if (document.cookie && document.cookie !== "") {
@@ -365,7 +447,7 @@ function playArray(arr){
       //console.log(arr[i][note])
       if(arr[i][note] != 0){
         console.log(note)
-        playNote(note);
+        playNote(note, 1);
       }
     }
   }
