@@ -42,8 +42,8 @@ def getArray(request):
     
     print("Generating piano note matrix")
     #if(pianoPiClass != 0):
-    #  noteArray = pianoPiClass.generate_piano_note_matrix()
-    noteArray = scheduler.parse_input("out/"+ tsvFileName +".tsv")
+    noteArray = pianoPiClass.generate_piano_note_matrix()
+    #noteArray = scheduler.init("/media/out/"+ tsvFileName +"/" + tsvFileName + ".tsv")
     #else:
     #  print("ERROR, PianoPi Class not set yet")
     #  noteArray = []
@@ -63,6 +63,10 @@ def record_detail(request, fileName):
   global tsvFileName
   tsvFileName = fileName
   pianoPiClass = piano_pi.PianoPi(file_path = 'C:/Users/jwama/Desktop/Masters/Fall/Capstone/WebApp/talkingpiano/media/records/' + fileName + '.wav', uuid=fileName, play_rate=15)
+  pianoPiClass.plot_freq_through_time()
+  pianoPiClass.generate_output_wav_file()
+  pianoPiClass.generate_piano_note_matrix()
+
   print("Done creating PianoPi")
   print("Creating TSV...")
   pianoPiClass.generate_tsv()

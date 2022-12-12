@@ -82,8 +82,8 @@
   recordButton.addEventListener('click', function(){
     stopButton.disabled = false;
     navigator.mediaDevices.getUserMedia(
-      {audio: {sampleSize: 16, sampleRate:48000, channelCount: 1},
-       vido:false}
+      {audio: {sampleSize: 16, sampleRate:48000, channelCount: 2},
+       video:false}
     )
     .then(handleSuccess);
     recordButton.disabled = true;
@@ -95,7 +95,7 @@
     gumStream = audioStream;
     var input = audio_context.createMediaStreamSource(audioStream);
     recorder = new Recorder(input, {
-      numChannels: 1
+      numChannels: 2
     });
 
     function createDownloadWav() {

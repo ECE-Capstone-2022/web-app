@@ -23,6 +23,7 @@
       processing functions on our input audio. Currently processing: 
       {{record.name}}.wav
     </p>
+    <!--
     <div>
       <p>Playback your original audio:</p>
       <audio src="{{record.voice.url}}" controls></audio>
@@ -41,6 +42,16 @@
         piano-key audio on top of the original audio to show the difference:
       </p>
       <img src="/media/graphs/fin_freqLayer.png">
+    </div>
+    -->
+    <div>
+      <img src="/media/out/{{param}}/plots/png/{{param}}_reconstructed_audio.png">
+    </div>
+    <div>
+      <iframe width="1000" height="500" src="/media/out/{{param}}/plots/html/{{param}}_3d_frequencies.html"></iframe>
+    </div>
+    <div>
+      <iframe width="1000" height="500" src="/media/out/{{param}}/plots/html/{{param}}_piano_notes.html"></iframe>
     </div>
   </div>
   <div>

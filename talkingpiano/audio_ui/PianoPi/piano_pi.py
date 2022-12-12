@@ -69,9 +69,9 @@ with open('key_frequencies.txt', 'r') as f:
 f.close()
 
 # Generating column headers for the tsv outputs
-TSV_HEADERS = ['time_stamp']
-for i, key_freq in enumerate(PIANO_KEY_FREQUENCIES):
-  TSV_HEADERS.append(f'key{i}_{key_freq}Hz')
+# TSV_HEADERS = ['time_stamp']
+# for i, key_freq in enumerate(PIANO_KEY_FREQUENCIES):
+#   TSV_HEADERS.append(f'key{i}_{key_freq}Hz')
 
 class PianoPi:
 
@@ -147,7 +147,7 @@ class PianoPi:
                      title="Change in Frequencies Through Time Using the SDFT")
 
     # Generate File Path
-    file_path = f'out/{self.uuid}/plots/html'
+    file_path = f'media/out/{self.uuid}/plots/html'
 
     if not os.path.exists(file_path):
       os.makedirs(file_path)
@@ -200,7 +200,7 @@ class PianoPi:
     ########################
 
     # Generate a file path for this audio recording
-    file_path = f'out/{self.uuid}/audio'
+    file_path = f'media/out/{self.uuid}/audio'
 
     if not os.path.exists(file_path):
       os.makedirs(file_path)
@@ -221,7 +221,7 @@ class PianoPi:
     ax.set_ylabel('Amplitude')
 
     #Generate a file path for the plot image
-    file_path = f'out/{self.uuid}/plots/png'
+    file_path = f'media/out/{self.uuid}/plots/png'
 
     if not os.path.exists(file_path):
       os.makedirs(file_path)
@@ -239,12 +239,12 @@ class PianoPi:
 
     # Preconditions
     dbg_assert(self.key_freq_through_time_T)
-    dbg_assert(TSV_HEADERS)
+    #dbg_assert(TSV_HEADERS)
     dbg_assert(self.audio_len)
     dbg_assert(self.sample_window)
 
     # Generate a unique id for this audio recording
-    file_path = f'out/{self.uuid}'
+    file_path = f'media/out/{self.uuid}'
 
     if not os.path.exists(file_path):
       os.makedirs(file_path)
@@ -254,7 +254,7 @@ class PianoPi:
     with open(file_path,'wt') as out_file:
       # Write the column headers
       tsv_writer = csv.writer(out_file, delimiter='\t')
-      tsv_writer.writerow(TSV_HEADERS)
+      #tsv_writer.writerow(TSV_HEADERS)
 
       # Iterate through every play rate sample
       for i in range(len(self.key_freq_through_time_T[0])):
@@ -297,7 +297,7 @@ class PianoPi:
           if (strength > THRESHOLD):
             res[n][k] = strength
 
-    # self.plot_piano_note_matrix(res)
+    self.plot_piano_note_matrix(res)
 
     dbg_print(np.shape(res))
 
@@ -335,7 +335,7 @@ class PianoPi:
                      title="Piano Notes")
 
     # Generate File Path
-    file_path = f'out/{self.uuid}/plots/html'
+    file_path = f'media/out/{self.uuid}/plots/html'
 
     if not os.path.exists(file_path):
       os.makedirs(file_path)

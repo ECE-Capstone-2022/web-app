@@ -1,6 +1,6 @@
 scipy
+django
 numpy
 plotly
 pandas
 matplotlib
-IPython
