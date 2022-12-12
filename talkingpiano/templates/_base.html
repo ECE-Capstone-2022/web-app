@@ -14,14 +14,14 @@
     <title> Django Ajax - {% block title %} {% endblock title %}</title>
     <!-- pull stylesheet from bootstrap -->
     <link rel="stylesheet" href="{% static 'assets/css/bootstrap.css' %}" />
-    <link rel="stylesheet" href="{% static 'assets/css/visualizer.css' %}"
+    <link rel="stylesheet" href="{% static 'assets/css/visualizer.css' %}"/>
   </head>
 
   <body style="background-color:grey">
     <!--url cache-->
     {% url 'audio_ui:record' as record_url %}
     <!--url cache-->
-    {% url 'audio-ui:index' as home_url %}
+    {% url 'audio-ui:home' as home_url %}
     <section class="hero is-info is-small">
       <!-- Hero head: will stick at the top -->
       <div class="hero-head">
@@ -29,10 +29,11 @@
           <div class="container">
             <!-- To partition the buttons on one side of the window-->
               <div>
-                <a class="btn btn-secondary" href="{% url 'audio_ui:index' %}">
+                <a class="btn btn-secondary" href="{% url 'audio_ui:home' %}">
                   Home
                 </a>
                 <a class="btn btn-secondary" href="{% url 'audio_ui:record' %}"> Record </a>
+                <a class="btn btn-secondary" href="{% url 'audio_ui:past_records' %}"> Past Recordings </a>
               </div>
             </div>
           </div>

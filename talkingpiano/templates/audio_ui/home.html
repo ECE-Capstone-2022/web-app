@@ -1,0 +1,40 @@
+<!--
+  templates/audio_ui/home.html
+  Used as the initial home page when first logging into the web app
+  - This is an introduction to our project that will include background, info, 
+    and links to our Capstone Website
+-->
+<!-- inherit _base.html -->
+{% extends '_base.html' %}
+
+<!-- page_title comes from passed in context from views.py -->
+{% block title %} {{page_title}} {% endblock title %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <h1 class="text-center"> Piano Pi</h1>
+    <h4 class="text-center"> The Talking Piano</h4>
+    
+    <h5 class="text-center">
+      Self playing pianos have been around for a very long time, dating as far 
+      back as the 1900's with pneumatic player pianos. Our project uses an 
+      electro-mechanical self playing piano to reproduce human speech using piano notes. 
+      Our speech is composed of sound waves of various frequencies. A piano key, when played, 
+      produces a note of a specific frequency. Multiple keys combined can evoke the 
+      phonemes of human speech, and allow a piano to speak and be understood. 
+    </h5>
+    <h5 class="text-center">
+      If you're interested in hearing what something like that even sounds like, 
+      check out this video from Mark Rober, where he demonstrates his talking piano. 
+      If you'd like to learn more about what goes in to building a talking piano, 
+      then make sure to visit our developer blogs during the semester! 
+      Here's a brief overview of everything we'll be working on:
+    </h5>
+    
+  </div>
+
+</section>
+
+
+{% endblock content %}

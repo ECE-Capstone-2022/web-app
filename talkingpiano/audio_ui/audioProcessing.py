@@ -6,7 +6,7 @@ from scipy.fftpack import fft, ifft
 from scipy.io import wavfile
 
 # from scipy.io.wavfile import read as wav_to_numpy
-from IPython import display
+#from IPython import display
 
 
 

@@ -5,15 +5,25 @@
 
   Parts from Pianolizer:
   Palette Class (and methods)
-  Piano Keyboard Class (and methods)
+  Piano Keyboard Class (and methods exceput update)
   Spectrogram Class (and methods)
   'pianoVisualize' Function
 
+  For the rest:
+
+  Author: John Martins
+  AndrewID: johnmart
+  Contact: johnmartins@cmu.edu / jwamartins@gmail.com
+
 */
 
-//List holding loaded audio elements for each piano note
-var noteAudio = [];
-var noteColors = [];
+
+var noteAudio = []; //List holding loaded audio elements for each piano note
+var noteColors = []; //List holding color information for each piano note
+var sampleDelay = 67; //time delay (ms) between each sample of keys
+
+
+
 
 //Attempt to fade note colors
 /*
@@ -208,7 +218,7 @@ class PianoKeyboard {
   //update (audioColors, midiColors) {
     update () {
 
-      for (let key = 0; key < 68; key++){
+      for (let key = 0; key < 69; key++){
         let keyElem = document.getElementById(key)
         let note = noteAudio[key]
         //let intensity; //for fading
@@ -222,8 +232,16 @@ class PianoKeyboard {
           }
         }
         else{
-          if(note.currentTime < (note.duration/3)){
+          if(note.currentTime < (note.duration/60)){
             keyElem.style.fill = '#FF0000'
+          }
+          else{
+            if(noteColors[key] == 'white'){
+              keyElem.style.fill = '#FFFFFF'
+            }
+            else{
+              keyElem.style.fill = '#000000'
+            }
           }
           //for fading
           /*
@@ -376,7 +394,7 @@ function pianoVisualize() {
 
 
 
-
+//Loads prepaired audio notes of each note into an array of notes 
 function loadNotes(){
   for(let i = 0; i < 88; i++){
     let currAudio = new Audio('/media/audio/mp3Notes/' + (i+1).toString() + '.mp3');
@@ -386,23 +404,32 @@ function loadNotes(){
   }
 }
 
+//Triggers audio file for ith piano note at specified volume
 function playNote(i, vol) {
   let note = noteAudio[i];
-  note.volume = vol;
-  if(note.paused){
-    let key = document.getElementById(i);
-    key.setAttribute('style', "fill: red")
-    note.play();
-    //key.setAttribute('style', "fill: white")
-  }
-  else{
+
+  if(vol == -1){
+    note.paused = true;
     note.currentTime = 0;
   }
+  else{  
+    note.volume = vol;
+    if(note.paused){
+      let key = document.getElementById(i);
+      key.setAttribute('style', "fill: red")
+      note.play();
+    }
+    else{
+      note.currentTime = 0;
+    }
+  }
 }
+
 
 //'getCookie' function taken from Django AJAX blog on testdriven.io
 //link: https://testdriven.io/blog/django-ajax-xhr/
 //Author: Yacine Rouizi
+//Gets document CSRF token for later Push requests
 function getCookie(name) {
   let cookieValue = null;
   if (document.cookie && document.cookie !== "") {
@@ -419,10 +446,13 @@ function getCookie(name) {
   return cookieValue;
 }
 
+
+//AJAX call to retrieve input list from views.py
+//Triggers playDelayedNotes once note array is retrieved
 function getArray(){
   let arr;
   $.ajax({
-    url: "",
+    url: "getArray",
     type: "POST",
     dataType: "json",
     headers: {
@@ -431,27 +461,39 @@ function getArray(){
     },
     success: (data) => {
       console.log(data.data);
-      playArray(data.data);
+      playDelayedNotes(data.data, 0);
     },
     error: (error) => {
       console.log(error);
       console.log("ERROR")
     }
-  });
-   
+  });   
 }
 
+
+//Loops through each note in array and calls playNote on each
 function playArray(arr){
-  for(let i = 0; i < arr.length; i++){
-    for(let note = 0; note < arr[i].length; note++){
-      //console.log(arr[i][note])
-      if(arr[i][note] != 0){
-        console.log(note)
-        playNote(note, 1);
-      }
+  var arrayLength = arr.length
+  if(arrayLength > 69){
+    arrayLength = 69
+  }
+  for(let note = 0; note < arrayLength; note++){
+    if(arr[note] != 0){
+      console.log("playing array index");
+      //playNote(note, arr[note]);
+      playNote(note, .2);
     }
   }
 }
+
+
+function playDelayedNotes(arr, index){
+  if((index < arr.length)){
+    playArray(arr[index]);
+    setTimeout(() => {playDelayedNotes(arr, index+1)}, sampleDelay);
+  }
+}
+
 
 window.onload = loadNotes();
 document.getElementById("visualButton").addEventListener("click", pianoVisualize);
